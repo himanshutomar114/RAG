@@ -3,7 +3,7 @@ uvicorn
 python-multipart
 requests
 huggingface-hub
-pinecone-client
+pinecone
 slowapi
 PyPDF2
 bs4
