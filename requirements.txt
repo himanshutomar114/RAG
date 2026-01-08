@@ -5,9 +5,9 @@ pydantic
 langchain
 langchain-community
 langchain-huggingface
-sentence-transformers
+sentence-transformers==2.2.2
 faiss-cpu
+pypdf
+python-docx
 beautifulsoup4
 requests
-PyPDF2
-python-docx

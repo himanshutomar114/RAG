@@ -1,15 +1,17 @@
+from functools import lru_cache
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from services.chunker import split_text
 from config import VECTOR_DB_PATH
 import os
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+def get_embeddings():
+    return HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
 def store_chunks(text: str):
-    chunks = split_text(text)
+    embeddings = get_embeddings()
     db = FAISS.from_texts(chunks, embeddings)
     db.save_local(VECTOR_DB_PATH)
 
