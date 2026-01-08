@@ -1,15 +1,17 @@
 fastapi
 uvicorn
 python-multipart
-pydantic
+
 langchain
 langchain-community
-huggingface_hub
-requests
+langchain-huggingface
+
 faiss-cpu
+
 PyPDF2
 python-docx
 beautifulsoup4
 requests
-python-dotenv
 
+huggingface-hub
+sentence-transformers
