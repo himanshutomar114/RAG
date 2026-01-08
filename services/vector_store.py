@@ -14,6 +14,6 @@ def store_chunks(chunks: list[str]):
     index.upsert(items)
 
 def query_chunks(query: str, k=4):
-    q_emb = embed_texts([query])[0]
+    q_emb = embed_texts([query])[0].tolist()
     res = index.query(vector=q_emb, top_k=k, include_metadata=True)
     return [m["metadata"]["text"] for m in res["matches"]]
