@@ -1,17 +1,25 @@
-import requests
-from services.vector_store import query_chunks
-from config import HUGGINGFACEHUB_API_TOKEN
+import requests, os
 
-API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-HEADERS = {"Authorization": f"Bearer {HUGGINGFACEHUB_API_TOKEN}"}
+def generate_answer(question: str, context_docs: list[str]):
+    prompt = f"""
+Answer using context only.
 
-def generate_answer(question: str):
-    docs = query_chunks(question)
-    context = "\n".join([doc.page_content for doc in docs])
+Context:
+{chr(10).join(context_docs)}
 
-    payload = {
-        "inputs": f"Context: {context}\nQuestion: {question}\nAnswer:"
-    }
+Question:
+{question}
+"""
 
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.json()[0]["generated_text"]
+    res = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": "mistralai/mistral-7b-instruct",
+            "messages": [{"role": "user", "content": prompt}],
+        },
+    )
+    return res.json()["choices"][0]["message"]["content"]

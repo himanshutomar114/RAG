@@ -1,23 +1,19 @@
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+from pinecone import Pinecone
+from services.embeddings import embed_texts
+import os, uuid
 
-_embeddings = None
-_db = None
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index = pc.Index(os.getenv("PINECONE_INDEX"))
 
-def get_embeddings():
-    global _embeddings
-    if _embeddings is None:
-        _embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-    return _embeddings
+def store_chunks(chunks: list[str]):
+    vectors = embed_texts(chunks)
+    items = [
+        (str(uuid.uuid4()), vectors[i], {"text": chunks[i]})
+        for i in range(len(chunks))
+    ]
+    index.upsert(items)
 
-def store_chunks(chunks):
-    global _db
-    embeddings = get_embeddings()
-    _db = FAISS.from_texts(chunks, embeddings)
-
-def query_chunks(query, k=4):
-    if _db is None:
-        return []
-    return _db.similarity_search(query, k=k)
+def query_chunks(query: str, k=4):
+    q_emb = embed_texts([query])[0]
+    res = index.query(vector=q_emb, top_k=k, include_metadata=True)
+    return [m["metadata"]["text"] for m in res["matches"]]
