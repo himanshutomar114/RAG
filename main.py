@@ -5,9 +5,6 @@ from services.vector_store import store_chunks, query_chunks
 from services.rag_chain import generate_answer
 from services.url_loader import load_from_url
 from dotenv import load_dotenv
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
 from collections import defaultdict
