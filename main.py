@@ -65,23 +65,18 @@ async def upload_file(
 
 
 @app.post("/ingest-url")
-async def ingest_url(
-    data: URLRequest,
-    x_token: str = Header(...)
-):
+async def ingest_url(data: URLRequest, x_token: str = Header(...)):
     if not limiter.is_allowed(x_token, limit=10):
-        raise HTTPException(429, "Rate limit exceeded (10/min)")
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
-    text = load_from_url(data.url)
-    chunks = split_text(text)
+    try:
+        text = load_from_url(data.url)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    store_chunks(chunks)
+    store_chunks(text)
+    return {"message": "URL indexed successfully"}
 
-    return {
-        "status": "success",
-        "chunks_indexed": len(chunks),
-        "url": data.url
-    }
 
 
 @app.post("/chat")
