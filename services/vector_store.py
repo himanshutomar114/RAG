@@ -16,7 +16,7 @@ def store_chunks(chunks: list[str]):
     # 2️⃣ Embed
     vectors = embed_texts(chunks)
 
-    if not vectors:
+    if vectors is None or len(vectors) == 0:
         raise ValueError("No embeddings returned")
 
     # 3️⃣ Prevent mismatch crashes
