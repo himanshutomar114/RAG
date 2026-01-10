@@ -6,5 +6,9 @@ client = InferenceClient(
     token=os.getenv("HF_API_TOKEN")
 )
 
-def embed_texts(texts: list[str]) -> list[list[float]]:
-    return client.feature_extraction(texts)
+def embed_texts(texts):
+    embeddings = []
+    for text in texts:
+        emb = client.feature_extraction(text)
+        embeddings.append(emb)
+    return embeddings

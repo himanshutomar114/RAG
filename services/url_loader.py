@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+MAX_HTML_CHARS = 300_000  # 🔥 CRITICAL MEMORY SAFETY
+
 def load_from_url(url: str) -> str:
     headers = {
         "User-Agent": (
@@ -22,11 +24,20 @@ def load_from_url(url: str) -> str:
     except requests.exceptions.RequestException as e:
         raise RuntimeError(f"Failed to fetch URL: {e}")
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    # 🔥 LIMIT RAW HTML SIZE (MOST IMPORTANT LINE)
+    html = response.text[:MAX_HTML_CHARS]
 
-    # remove scripts/styles
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Remove scripts/styles
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
 
     text = soup.get_text(separator="\n")
-    return "\n".join(line.strip() for line in text.splitlines() if line.strip())
+
+    # Clean empty lines
+    return "\n".join(
+        line.strip()
+        for line in text.splitlines()
+        if line.strip()
+    )

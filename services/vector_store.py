@@ -5,7 +5,8 @@ import os, uuid
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX"))
 
-UPSERT_BATCH_SIZE = 50  # 🔒 Safe under Pinecone 2MB limit
+MAX_CHUNKS = 100          # 🔒 Memory safety (VERY IMPORTANT)
+UPSERT_BATCH_SIZE = 50   # 🔒 Pinecone request safety
 
 
 def store_chunks(chunks: list[str]):
@@ -14,12 +15,15 @@ def store_chunks(chunks: list[str]):
     if not chunks:
         return
 
-    # 2️⃣ Embed
+    # 2️⃣ HARD LIMIT (🔥 THIS FIXES OOM)
+    chunks = chunks[:MAX_CHUNKS]
+
+    # 3️⃣ Embed (safe now)
     vectors = embed_texts(chunks)
     if vectors is None or len(vectors) == 0:
         raise ValueError("No embeddings returned")
 
-    # 3️⃣ Prevent mismatch crashes
+    # 4️⃣ Prevent mismatch crashes
     min_len = min(len(chunks), len(vectors))
     if len(chunks) != len(vectors):
         print(
@@ -27,7 +31,7 @@ def store_chunks(chunks: list[str]):
             f"{len(chunks)} chunks vs {len(vectors)} vectors"
         )
 
-    # 4️⃣ Prepare Pinecone-safe items
+    # 5️⃣ Prepare items
     items = [
         (
             str(uuid.uuid4()),
@@ -37,7 +41,7 @@ def store_chunks(chunks: list[str]):
         for i in range(min_len)
     ]
 
-    # 5️⃣ 🔥 BATCHED UPSERT (CRITICAL FIX)
+    # 6️⃣ Batched upsert
     for i in range(0, len(items), UPSERT_BATCH_SIZE):
         batch = items[i:i + UPSERT_BATCH_SIZE]
         index.upsert(batch)
