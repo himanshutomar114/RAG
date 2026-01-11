@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from collections import defaultdict
@@ -13,6 +14,17 @@ from services.rag_chain import generate_answer
 load_dotenv()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://ai-analyzer-omega.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["POST", "OPTIONS"],  # 👈 allows OPTIONS, POST, etc.
+    allow_headers=["Content-Type", "x-token"],  # 👈 allows x-token
+)
+
 
 # ---------------- RATE LIMITER ---------------- #
 
