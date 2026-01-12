@@ -1,4 +1,3 @@
-from requests import Response
 from fastapi import FastAPI, UploadFile, File, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -26,9 +25,6 @@ app.add_middleware(
     allow_headers=["*"],  # 👈 allows x-token
 )
 
-@app.options("/{path:path}")
-async def options_handler(path: str):
-    return Response(status_code=200)
 
 # ---------------- RATE LIMITER ---------------- #
 
@@ -90,22 +86,28 @@ async def ingest_url(data: URLRequest, x_token: str = Header(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    store_chunks(text)
-    return {"message": "URL indexed successfully"}
+    chunks = split_text(text)   # 🔥 MISSING STEP
+    store_chunks(chunks)
+
+    return {
+        "message": "URL indexed successfully",
+        "chunks_indexed": len(chunks)
+    }
+
 
 
 
 @app.post("/chat")
-async def chat(
-    data: ChatRequest,
-    x_token: str = Header(...)
-):
+async def chat(data: ChatRequest, x_token: str = Header(...)):
     if not limiter.is_allowed(x_token, limit=30):
         raise HTTPException(429, "Rate limit exceeded (30/min)")
 
     docs = query_chunks(data.query)
-    answer = generate_answer(data.query, docs)
 
-    return {
-        "answer": answer
-    }
+    if not docs:
+        return {
+            "answer": "⚠️ No documents found. Upload a file or ingest a URL first."
+        }
+
+    answer = generate_answer(data.query, docs)
+    return {"answer": answer}
