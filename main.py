@@ -25,6 +25,9 @@ app.add_middleware(
     allow_headers=["*"],  # 👈 allows x-token
 )
 
+@app.options("/{path:path}")
+async def options_handler(path: str):
+    return Response(status_code=200)
 
 # ---------------- RATE LIMITER ---------------- #
 
