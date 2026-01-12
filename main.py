@@ -59,16 +59,20 @@ class URLRequest(BaseModel):
 
 @app.post("/upload")
 async def upload_file(
+    chat_id: str,
     file: UploadFile = File(...),
     x_token: str = Header(...)
 ):
+    
+    namespace = f"{x_token}:{chat_id}"
+
     if not limiter.is_allowed(x_token, limit=5):
         raise HTTPException(429, "Rate limit exceeded (5/min)")
 
     text = load_document(file)
     chunks = split_text(text)
 
-    store_chunks(chunks)
+    store_chunks(chunks, namespace)
 
     return {
         "status": "success",
@@ -77,7 +81,10 @@ async def upload_file(
 
 
 @app.post("/ingest-url")
-async def ingest_url(data: URLRequest, x_token: str = Header(...)):
+async def ingest_url(chat_id: str, data: URLRequest, x_token: str = Header(...)):
+     
+    namespace = f"{x_token}:{chat_id}"
+
     if not limiter.is_allowed(x_token, limit=10):
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
@@ -87,7 +94,7 @@ async def ingest_url(data: URLRequest, x_token: str = Header(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
     chunks = split_text(text)   # 🔥 MISSING STEP
-    store_chunks(chunks)
+    store_chunks(chunks, namespace)
 
     return {
         "message": "URL indexed successfully",
@@ -98,11 +105,14 @@ async def ingest_url(data: URLRequest, x_token: str = Header(...)):
 
 
 @app.post("/chat")
-async def chat(data: ChatRequest, x_token: str = Header(...)):
+async def chat(chat_id: str, data: ChatRequest, x_token: str = Header(...)):
+    
+    namespace = f"{x_token}:{chat_id}"
+
     if not limiter.is_allowed(x_token, limit=30):
         raise HTTPException(429, "Rate limit exceeded (30/min)")
 
-    docs = query_chunks(data.query)
+    docs = query_chunks(data.query, namespace)
 
     if not docs:
         return {
@@ -111,3 +121,11 @@ async def chat(data: ChatRequest, x_token: str = Header(...)):
 
     answer = generate_answer(data.query, docs)
     return {"answer": answer}
+
+@app.post("/clear-chat")
+async def clear_chat(chat_id: str, x_token: str = Header(...)):
+    namespace = f"{x_token}:{chat_id}"
+
+    index.delete(delete_all=True, namespace=namespace)
+
+    return {"message": "Chat memory deleted"}
