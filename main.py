@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from fastapi import Response
 from collections import defaultdict
 import time
 
@@ -60,8 +61,11 @@ class URLRequest(BaseModel):
 @app.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    x_token: str = Header(...)
+    x_token: str | None = Header(default=None),
 ):
+    if not x_token:
+        raise HTTPException(401, "Missing token")
+
     if not limiter.is_allowed(x_token, limit=5):
         raise HTTPException(429, "Rate limit exceeded (5/min)")
 
@@ -77,7 +81,13 @@ async def upload_file(
 
 
 @app.post("/ingest-url")
-async def ingest_url(data: URLRequest, x_token: str = Header(...)):
+async def ingest_url(data: URLRequest, 
+    x_token: str | None = Header(default=None),
+):
+
+    if not x_token:
+        raise HTTPException(401, "Missing token")
+
     if not limiter.is_allowed(x_token, limit=10):
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
@@ -94,8 +104,11 @@ async def ingest_url(data: URLRequest, x_token: str = Header(...)):
 @app.post("/chat")
 async def chat(
     data: ChatRequest,
-    x_token: str = Header(...)
+     x_token: str | None = Header(default=None),
 ):
+    if not x_token:
+        raise HTTPException(401, "Missing token")
+
     if not limiter.is_allowed(x_token, limit=30):
         raise HTTPException(429, "Rate limit exceeded (30/min)")
 
