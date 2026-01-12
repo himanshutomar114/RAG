@@ -10,6 +10,8 @@ from services.url_loader import load_from_url
 from services.chunker import split_text
 from services.vector_store import store_chunks, query_chunks
 from services.rag_chain import generate_answer
+from services.vector_store import store_chunks, query_chunks, delete_namespace
+
 
 load_dotenv()
 
@@ -126,6 +128,7 @@ async def chat(chat_id: str, data: ChatRequest, x_token: str = Header(...)):
 async def clear_chat(chat_id: str, x_token: str = Header(...)):
     namespace = f"{x_token}:{chat_id}"
 
-    index.delete(delete_all=True, namespace=namespace)
+    delete_namespace(namespace)
 
     return {"message": "Chat memory deleted"}
+
