@@ -1,6 +1,7 @@
 from pinecone import Pinecone
 from services.embeddings import embed_texts
 import os, uuid
+from pinecone import PineconeException
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
 index = pc.Index(os.getenv("PINECONE_INDEX"))
@@ -71,4 +72,8 @@ def query_chunks(query: str, namespace: str, k: int = 4):
 # DELETE CHAT MEMORY 🔥
 # =========================
 def delete_namespace(namespace: str):
-    index.delete(delete_all=True, namespace=namespace)
+    try:
+        index.delete(delete_all=True, namespace=namespace)
+    except PineconeException:
+        # Namespace does not exist → nothing to delete
+        pass

@@ -128,7 +128,11 @@ async def chat(chat_id: str, data: ChatRequest, x_token: str = Header(...)):
 async def clear_chat(chat_id: str, x_token: str = Header(...)):
     namespace = f"{x_token}:{chat_id}"
 
-    delete_namespace(namespace)
+    try:
+        delete_namespace(namespace)
+    except Exception as e:
+        # Log but don't fail frontend
+        print(f"[WARN] Failed to delete namespace {namespace}: {e}")
 
-    return {"message": "Chat memory deleted"}
+    return {"message": "Chat memory cleared"}
 
