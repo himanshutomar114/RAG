@@ -16,11 +16,8 @@ load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://ai-analyzer-omega.vercel.app",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],  # 👈 allows OPTIONS, POST, etc.
     allow_headers=["*"],  # 👈 allows x-token
 )
