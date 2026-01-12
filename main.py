@@ -21,8 +21,8 @@ app.add_middleware(
         "https://ai-analyzer-omega.vercel.app",
     ],
     allow_credentials=True,
-    allow_methods=["POST", "OPTIONS"],
-    allow_headers=["Content-Type", "x-token"],  # 👈 allows x-token
+    allow_methods=["*"],  # 👈 allows OPTIONS, POST, etc.
+    allow_headers=["*"],  # 👈 allows x-token
 )
 
 @app.options("/{path:path}")
