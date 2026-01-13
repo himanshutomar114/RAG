@@ -99,6 +99,7 @@ Body: multipart/form-data with file
 ```
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -123,6 +124,7 @@ Body: {
 ```
 
 **Response:**
+
 ```json
 {
   "message": "URL indexed successfully",
@@ -147,6 +149,7 @@ Body: {
 ```
 
 **Response:**
+
 ```json
 {
   "answer": "The document discusses the history of artificial intelligence..."
@@ -167,6 +170,7 @@ Header: X-Token: <your-api-token>
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Chat memory cleared"
@@ -179,14 +183,14 @@ Header: X-Token: <your-api-token>
 
 ### Services
 
-| File | Purpose |
-|------|---------|
-| `document_loader.py` | Load & extract text from PDF/DOCX |
-| `url_loader.py` | Fetch & parse web content |
-| `chunker.py` | Split text into optimal chunks |
-| `embeddings.py` | Generate vector embeddings |
-| `vector_store.py` | Store/query vectors in Pinecone |
-| `rag_chain.py` | LLM orchestration & answer generation |
+| File                 | Purpose                               |
+| -------------------- | ------------------------------------- |
+| `document_loader.py` | Load & extract text from PDF/DOCX     |
+| `url_loader.py`      | Fetch & parse web content             |
+| `chunker.py`         | Split text into optimal chunks        |
+| `embeddings.py`      | Generate vector embeddings            |
+| `vector_store.py`    | Store/query vectors in Pinecone       |
+| `rag_chain.py`       | LLM orchestration & answer generation |
 
 ### Rate Limiting
 
@@ -201,6 +205,7 @@ Exceeding limits returns HTTP 429 with clear error message.
 ### Namespace Strategy
 
 Each chat conversation is isolated using the pattern:
+
 ```
 namespace = "{x_token}:{chat_id}"
 ```
@@ -214,29 +219,23 @@ This ensures multi-user safety and conversation isolation.
 ```javascript
 // 1. Upload document
 const formData = new FormData();
-formData.append('file', pdfFile);
+formData.append("file", pdfFile);
 
-const uploadRes = await fetch(
-  'http://localhost:8000/upload?chat_id=conv-123',
-  {
-    method: 'POST',
-    headers: { 'X-Token': 'user-token-abc123' },
-    body: formData
-  }
-);
+const uploadRes = await fetch("http://localhost:8000/upload?chat_id=conv-123", {
+  method: "POST",
+  headers: { "X-Token": "user-token-abc123" },
+  body: formData,
+});
 
 // 2. Ask question
-const chatRes = await fetch(
-  'http://localhost:8000/chat?chat_id=conv-123',
-  {
-    method: 'POST',
-    headers: {
-      'X-Token': 'user-token-abc123',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query: 'What is the summary?' })
-  }
-);
+const chatRes = await fetch("http://localhost:8000/chat?chat_id=conv-123", {
+  method: "POST",
+  headers: {
+    "X-Token": "user-token-abc123",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ query: "What is the summary?" }),
+});
 
 const { answer } = await chatRes.json();
 console.log(answer);
@@ -262,6 +261,7 @@ console.log(answer);
 ### Render
 
 1. Add `runtime.txt`:
+
 ```
 python-3.11.9
 ```
@@ -269,6 +269,7 @@ python-3.11.9
 2. Set environment variables in Render dashboard
 
 3. Deploy:
+
 ```bash
 git push origin main
 ```
@@ -286,32 +287,36 @@ ALLOWED_ORIGINS = ["https://ai-analyzer-omega.vercel.app"]
 ## 🔧 Troubleshooting
 
 ### "No documents found" error
+
 - Ensure document was successfully uploaded
 - Check chat_id matches between upload and query
 - Verify token is consistent
 
 ### Rate limit exceeded
+
 - Implement exponential backoff on frontend
 - Check token is per-user (not shared)
 
 ### Embedding errors
+
 - Verify HuggingFace API key is set
 - Check internet connectivity
 - Model may be loading on first call (slower)
 
 ### Pinecone connection failed
+
 - Verify API key and index name in `.env`
 - Check index is in correct region
 - Ensure namespace exists before querying
 
 ## 📚 API Response Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | Success |
-| 400 | Invalid request (e.g., bad URL) |
-| 429 | Rate limit exceeded |
-| 500 | Server error |
+| Code | Meaning                         |
+| ---- | ------------------------------- |
+| 200  | Success                         |
+| 400  | Invalid request (e.g., bad URL) |
+| 429  | Rate limit exceeded             |
+| 500  | Server error                    |
 
 ## 📦 Dependencies
 
@@ -348,6 +353,7 @@ MIT License - see LICENSE file
 ## 🤝 Support
 
 For issues, email or create a GitHub issue with:
+
 - Error message
 - Steps to reproduce
 - Environment details
