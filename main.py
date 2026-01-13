@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from collections import defaultdict
+from fastapi import BackgroundTasks
 import time
 
 from services.document_loader import load_document
@@ -63,7 +64,8 @@ class URLRequest(BaseModel):
 async def upload_file(
     chat_id: str,
     file: UploadFile = File(...),
-    x_token: str = Header(...)
+    x_token: str = Header(...),
+    background_tasks: BackgroundTasks = None
 ):
     
     namespace = f"{x_token}:{chat_id}"
@@ -74,7 +76,7 @@ async def upload_file(
     text = load_document(file)
     chunks = split_text(text)
 
-    store_chunks(chunks, namespace)
+    background_tasks.add_task(store_chunks, chunks, namespace)
 
     return {
         "status": "success",
@@ -83,7 +85,7 @@ async def upload_file(
 
 
 @app.post("/ingest-url")
-async def ingest_url(chat_id: str, data: URLRequest, x_token: str = Header(...)):
+async def ingest_url(chat_id: str, data: URLRequest, x_token: str = Header(...),background_tasks: BackgroundTasks = None):
      
     namespace = f"{x_token}:{chat_id}"
 
@@ -96,8 +98,8 @@ async def ingest_url(chat_id: str, data: URLRequest, x_token: str = Header(...))
         raise HTTPException(status_code=400, detail=str(e))
 
     chunks = split_text(text)   # 🔥 MISSING STEP
-    store_chunks(chunks, namespace)
-
+    background_tasks.add_task(store_chunks, chunks, namespace)
+    
     return {
         "message": "URL indexed successfully",
         "chunks_indexed": len(chunks)
