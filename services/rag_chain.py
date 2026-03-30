@@ -38,8 +38,8 @@ Answer:
         headers={
             "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://rag-v4le.onrender.com", 
-            "X-Title": "RAG",
+            "HTTP-Referer": "https://ai-analyzer-omega.vercel.app", 
+            "X-Title": "AI Analyzer",
         },
         json={
             "model": "mistralai/mistral-7b-instruct",
