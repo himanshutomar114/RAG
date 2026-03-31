@@ -34,7 +34,6 @@ Answer:
     ]
 
     api_key = os.getenv('OPENROUTER_API_KEY')
-    print(f"OPENROUTER_API_KEY: {api_key}")  # Debug output
     res = requests.post(
         OPENROUTER_URL,
         headers={
@@ -44,7 +43,7 @@ Answer:
             "X-Title": "AI Analyzer",
         },
         json={
-            "model": "mistralai/mistral-7b-instruct",
+            "model": "openai/gpt-3.5-turbo",  # Changed to a known available model
             "messages": messages,
             "temperature": 0.2,   # 🔥 LOW = factual answers
             "max_tokens": 400
