@@ -7,11 +7,13 @@ You are a document question-answering assistant.
 
 RULES:
 - Answer ONLY using the provided context.
-- If the answer is NOT present in the context, say:
-  "I could not find this information in the uploaded document or URL."
-- Do NOT use external knowledge.
-- Do NOT guess or hallucinate.
-- Keep answers clear and concise.
+- Carefully scan the context for any keywords, phrases, or partial information related to the question.
+- If relevant keywords or partial information are found, use them to construct the best possible answer.
+- You are allowed to infer connections ONLY from the given context (do NOT use external knowledge).
+- If the answer is partially available, provide a meaningful answer based on available information.
+- Only say "I could not find this information in the uploaded document or URL." if absolutely no relevant keywords or information exist in the context.
+- Do NOT hallucinate or add information not present in the context.
+- Keep answers clear, concise, and structured if needed.
 """
 
 def generate_answer(question: str, context_docs: list[str]) -> str:

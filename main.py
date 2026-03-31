@@ -116,7 +116,7 @@ async def chat(chat_id: str, data: ChatRequest, x_token: str = Header(...)):
     if not limiter.is_allowed(x_token, limit=30):
         raise HTTPException(429, "Rate limit exceeded (30/min)")
 
-    docs = query_chunks(data.query, namespace, k=4)
+    docs = query_chunks(data.query, namespace, k=8)
 
     if not docs:
         return {
