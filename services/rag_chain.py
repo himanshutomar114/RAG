@@ -50,5 +50,6 @@ Answer:
         timeout=60
     )
 
+    print(f"OpenRouter response: {res.status_code} {res.text}")  # Debug output
     res.raise_for_status()
     return res.json()["choices"][0]["message"]["content"].strip()
