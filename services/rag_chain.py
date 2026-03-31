@@ -33,10 +33,12 @@ Answer:
         }
     ]
 
+    api_key = os.getenv('OPENROUTER_API_KEY')
+    print(f"OPENROUTER_API_KEY: {api_key}")  # Debug output
     res = requests.post(
         OPENROUTER_URL,
         headers={
-            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "https://ai-analyzer-omega.vercel.app", 
             "X-Title": "AI Analyzer",
